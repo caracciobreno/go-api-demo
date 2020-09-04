@@ -3,7 +3,6 @@ package httpapi
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"net/http"
 
 	"github.com/google/uuid"
@@ -27,29 +26,23 @@ type AccountService interface {
 }
 
 type Account struct {
-	service AccountService
+	accountService AccountService
+	authWrapper    *AuthWrapper
 }
 
-func NewAccount(service AccountService) *Account {
-	return &Account{service: service}
+func NewAccount(accountService AccountService, authWrapper *AuthWrapper) *Account {
+	return &Account{accountService: accountService, authWrapper: authWrapper}
 }
 
 func (d *Account) RegisterRoutes(router *mux.Router) {
-	router.HandleFunc("/{userID}", d.getBalance).Methods(http.MethodGet)
-	router.HandleFunc("/{userID}/transactions", d.listTransactions).Methods(http.MethodGet)
-	router.HandleFunc("/{userID}/transactions", d.createTransaction).Methods(http.MethodPost)
+	router.HandleFunc("/me", d.authWrapper.WithAuth(d.getBalance)).Methods(http.MethodGet)
+	router.HandleFunc("/me/transactions", d.authWrapper.WithAuth(d.listTransactions)).Methods(http.MethodGet)
+	router.HandleFunc("/me/transactions", d.authWrapper.WithAuth(d.createTransaction)).Methods(http.MethodPost)
 }
 
-func (d *Account) getBalance(w http.ResponseWriter, r *http.Request) {
-	userID := mux.Vars(r)["userID"]
+func (d *Account) getBalance(w http.ResponseWriter, r *http.Request, user *service.User) {
 
-	userUUID, err := uuid.Parse(userID)
-	if err != nil {
-		customhttp.WriteError(w, errors.New("invalid userID"), http.StatusBadRequest)
-		return
-	}
-
-	balance, err := d.service.GetBalance(r.Context(), userUUID)
+	balance, err := d.accountService.GetBalance(r.Context(), user.ID)
 	if err != nil {
 		customhttp.WriteError(w, err, http.StatusBadRequest)
 		return
@@ -59,22 +52,15 @@ func (d *Account) getBalance(w http.ResponseWriter, r *http.Request) {
 		UserID  uuid.UUID `json:"user_id"`
 		Balance float64   `json:"balance"`
 	}{
-		userUUID, balance,
+		user.ID, balance,
 	}
 
 	customhttp.WriteJSON(w, getBalanceResponse)
 }
 
-func (d *Account) listTransactions(w http.ResponseWriter, r *http.Request) {
-	userID := mux.Vars(r)["userID"]
+func (d *Account) listTransactions(w http.ResponseWriter, r *http.Request, user *service.User) {
 
-	userUUID, err := uuid.Parse(userID)
-	if err != nil {
-		customhttp.WriteError(w, errors.New("invalid userID"), http.StatusBadRequest)
-		return
-	}
-
-	transactions, err := d.service.ListTransactions(r.Context(), userUUID)
+	transactions, err := d.accountService.ListTransactions(r.Context(), user.ID)
 	if err != nil {
 		customhttp.WriteError(w, err, http.StatusBadRequest)
 		return
@@ -84,20 +70,13 @@ func (d *Account) listTransactions(w http.ResponseWriter, r *http.Request) {
 		UserID       uuid.UUID             `json:"user_id"`
 		Transactions []service.Transaction `json:"transactions"`
 	}{
-		userUUID, transactions,
+		user.ID, transactions,
 	}
 
 	customhttp.WriteJSON(w, listTransactionsResponse)
 }
 
-func (d *Account) createTransaction(w http.ResponseWriter, r *http.Request) {
-	userID := mux.Vars(r)["userID"]
-
-	userUUID, err := uuid.Parse(userID)
-	if err != nil {
-		customhttp.WriteError(w, errors.New("invalid userID"), http.StatusBadRequest)
-		return
-	}
+func (d *Account) createTransaction(w http.ResponseWriter, r *http.Request, user *service.User) {
 
 	var createTransactionRequest struct {
 		TargetUserID uuid.UUID `json:"target_user_id"`
@@ -109,7 +88,8 @@ func (d *Account) createTransaction(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	transaction, err := d.service.CreateTransaction(r.Context(), userUUID, createTransactionRequest.TargetUserID, createTransactionRequest.Amount)
+	transaction, err := d.accountService.CreateTransaction(r.Context(), user.ID, createTransactionRequest.TargetUserID,
+		createTransactionRequest.Amount)
 	if err != nil {
 		customhttp.WriteError(w, err, http.StatusBadRequest)
 		return

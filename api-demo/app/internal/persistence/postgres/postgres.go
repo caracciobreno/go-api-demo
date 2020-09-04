@@ -101,3 +101,8 @@ func (repo *AccountRepository) WithTx(ctx context.Context, transactionedFunction
 
 	return nil
 }
+
+func (repo *AccountRepository) FindUserByCredentials(ctx context.Context, userName string, password string) (*service.User, error) {
+	const query = `SELECT ` + userFields + ` FROM users WHERE username = $1 AND password = $2`
+	return scanUser(repo.queryer.QueryRowContext(ctx, query, userName, password))
+}

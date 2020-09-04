@@ -18,9 +18,13 @@ func main() {
 		}
 
 		accountRepo := postgres.NewAccountRepository(db)
-		accountService := service.NewAccount(accountRepo)
 
-		accountAPI := httpapi.NewAccount(accountService)
+		accountService := service.NewAccount(accountRepo)
+		authService := service.NewAuthentication(accountRepo)
+
+		authWrapper := httpapi.NewAuthWrapper(authService)
+
+		accountAPI := httpapi.NewAccount(accountService, authWrapper)
 
 		resources.WithHTTPAPI(accountAPI)
 

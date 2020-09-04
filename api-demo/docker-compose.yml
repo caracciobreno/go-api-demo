@@ -10,6 +10,7 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    # this assures that the schema will be created once the db is up
     volumes:
       - ./schema.sql:/docker-entrypoint-initdb.d/schema.sql
 
@@ -19,6 +20,7 @@ services:
       dockerfile: Dockerfile
     ports:
     - 8080:8080
+    - 8585:8585
     depends_on:
       - postgres
     environment:
