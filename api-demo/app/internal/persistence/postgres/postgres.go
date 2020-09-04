@@ -11,11 +11,13 @@ import (
 	"api-demo/pkg/pqutil"
 )
 
+// AccountRepository is a persistence repository that uses Postgres as its DB
 type AccountRepository struct {
 	queryer pqutil.Queryer
 	txer    pqutil.Transactioner
 }
 
+// NewAccountRepository creates a postgres repository for accounts
 func NewAccountRepository(db *sql.DB) *AccountRepository {
 	return &AccountRepository{queryer: db, txer: db}
 }

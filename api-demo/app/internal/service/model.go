@@ -7,16 +7,16 @@ import (
 )
 
 type User struct {
-	ID       uuid.UUID
-	UserName string
-	Password string
-	Balance  float64
+	ID       uuid.UUID `json:"id"`
+	UserName string    `json:"user_name"`
+	Password string    `json:"password"`
+	Balance  float64   `json:"balance"`
 }
 
 type Transaction struct {
-	ID           uuid.UUID
-	SourceUserID uuid.UUID
-	TargetUserID uuid.UUID
-	Amount       float64
-	CreatedAt    time.Time
+	ID           uuid.UUID `json:"id"`
+	SourceUserID uuid.UUID `json:"source_user_id"`
+	TargetUserID uuid.UUID `json:"target_user_id"`
+	Amount       float64   `json:"amount"`
+	CreatedAt    time.Time `json:"created_at"`
 }

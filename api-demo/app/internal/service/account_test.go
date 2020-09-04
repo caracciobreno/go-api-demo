@@ -231,6 +231,18 @@ func TestAccount_CreateTransaction(t *testing.T) {
 				require.Contains(t, err.Error(), "insufficient balance")
 			},
 		},
+		"should return an error when the source and the target are the same": {
+			mutateSourceUser: func(user *service.User) {
+				user.ID = uuid.MustParse("c398a537-123c-4918-9081-eccc0e6ea0ad")
+			},
+			mutateTargetUser: func(user *service.User) {
+				user.ID = uuid.MustParse("c398a537-123c-4918-9081-eccc0e6ea0ad")
+			},
+			checkFunction: func(t *testing.T, user *service.User, user2 *service.User, f float64, f2 float64, transaction *service.Transaction, err error) {
+				require.Error(t, err)
+				require.Contains(t, err.Error(), "the target user should be different than the source user")
+			},
+		},
 	}
 
 	for title, test := range tests {

@@ -30,13 +30,3 @@ type ScannerIter interface {
 	Scanner
 	Iter
 }
-
-// HasRowsAffected checks to see if the expected number of rows were affected by the call to db.Exec
-func HasRowsAffected(res sql.Result, n int64) (bool, error) {
-	affected, err := res.RowsAffected()
-	if err != nil {
-		return false, err
-	}
-
-	return affected == n, nil
-}
