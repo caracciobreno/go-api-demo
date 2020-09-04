@@ -1,4 +1,11 @@
 # go-api-demo
+
+This is a simple project that shows how I'd write an HTTP API in Go with some application layering like API layer, 
+Service layer and Persistence layer.  
+
+The API allows a User to retrieve his balance, list his transactions and create a transaction to send money to some
+other User. 
+
 ## How to start the project 
 
 Inside the api-demo folder, execute `docker-compose up` to have everything magically started!
@@ -50,10 +57,7 @@ Feel free to create your own users on the schema.sql file, just remember to run 
 database might still stay up with data. 
 
 **username:password**
-breno:1234
-
-bruno:4321
-
-brono:abcd
-
-brano:abcdef
+ - breno:1234
+ - bruno:4321
+ - brono:abcd
+ - brano:abcdef

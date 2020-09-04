@@ -31,7 +31,7 @@ func TestAccount_GetBalance(t *testing.T) {
 		mutateMock    func(*accountRepositoryMock)
 		checkFunction func(*testing.T, *service.User, float64, error)
 	}{
-		"should succeed to get an user's balance": {
+		"should succeed to get a user's balance": {
 			checkFunction: successCheck,
 		},
 		"should return an error when the DB layer returns an error": {
@@ -108,7 +108,7 @@ func TestAccount_ListTransactions(t *testing.T) {
 		mutateMock    func(*accountRepositoryMock)
 		checkFunction func(*testing.T, *service.User, []service.Transaction, error)
 	}{
-		"should succeed to get an user's transaction": {
+		"should succeed to get a user's transaction": {
 			checkFunction: successCheck,
 		},
 		"should return an error when the DB layer returns an error": {
@@ -199,21 +199,21 @@ func TestAccount_CreateTransaction(t *testing.T) {
 		amount           float64
 		checkFunction    func(*testing.T, *service.User, *service.User, float64, float64, *service.Transaction, error)
 	}{
-		"should succeed creating a transaction when an user has more than the amount as balance": {
+		"should succeed creating a transaction when a user has more than the amount as balance": {
 			amount: 5,
 			mutateSourceUser: func(user *service.User) {
 				user.Balance = 10
 			},
 			checkFunction: successCheck,
 		},
-		"should succeed creating a transaction when an user has more the same  amount as balance": {
+		"should succeed creating a transaction when a user has more the same  amount as balance": {
 			amount: 10,
 			mutateSourceUser: func(user *service.User) {
 				user.Balance = 10
 			},
 			checkFunction: successCheck,
 		},
-		"should return an error when the DB doesn't find an user": {
+		"should return an error when the DB doesn't find a user": {
 			mutateMock: func(mock *accountRepositoryMock) {
 				mock.FindAndLockUserByIDFunc = func(ctx context.Context, userID uuid.UUID) (*service.User, error) {
 					return nil, errors.New("couldn't find user")

@@ -7,7 +7,7 @@ import (
 // AuthenticationRepository defines a repository that is able to fetch and authenticate users
 type AuthenticationRepository interface {
 
-	// FindUserByCredentials looks up in the DB for an user that matches the userName and password combination
+	// FindUserByCredentials looks up in the DB for a user that matches the userName and password combination
 	FindUserByCredentials(ctx context.Context, userName string, password string) (*User, error)
 }
 

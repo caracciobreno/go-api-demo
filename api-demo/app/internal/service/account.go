@@ -12,7 +12,7 @@ import (
 // AccountRepository defines features that should be provided to the service regarding storage
 type AccountRepository interface {
 
-	// FindUserByID looks up for an User with the given ID
+	// FindUserByID looks up for a User with the given ID
 	FindUserByID(ctx context.Context, userID uuid.UUID) (*User, error)
 
 	// ListTransactionsByUserID lists all the transactions that a given user was the Source
@@ -21,7 +21,7 @@ type AccountRepository interface {
 	// CreateTransaction creates a transaction between 2 users
 	CreateTransaction(ctx context.Context, transaction *Transaction) error
 
-	// FindAndLockUserByID looks up for an User with the given ID and locks it, not allowing other processes to observe
+	// FindAndLockUserByID looks up for a User with the given ID and locks it, not allowing other processes to observe
 	// this user while the transaction is not finished
 	FindAndLockUserByID(ctx context.Context, userID uuid.UUID) (*User, error)
 

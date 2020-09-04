@@ -17,7 +17,7 @@ type AuthenticationService interface {
 	Authenticate(ctx context.Context, userName string, password string) (*service.User, error)
 }
 
-// AuthWrapper wraps a decorated http.HandlerFunc (that receives an user) to a normal one, inspecting the request
+// AuthWrapper wraps a decorated http.HandlerFunc (that receives a user) to a normal one, inspecting the request
 // looking for user credentials
 type AuthWrapper struct {
 	authService AuthenticationService

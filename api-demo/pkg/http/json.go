@@ -26,7 +26,7 @@ func WriteError(w http.ResponseWriter, err error, code int) {
 		err.Error(),
 	}
 
-	// TODO: the error should be typed to figure if it was a server error or an user error
+	// TODO: the error should be typed to figure if it was a server error or a user error
 	if err := encoder.Encode(payload); err != nil {
 		panic(err)
 	}
