@@ -47,7 +47,7 @@ providing these will lead to requests being rejected.
 
 ## Healthcheck Server
  
-### /healthcheck
+#### /healthcheck
 **GET**: simply returns an OK header if the service is alive
 
 ## Test data
