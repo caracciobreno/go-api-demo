@@ -2,9 +2,11 @@ package httpapi
 
 import (
 	"context"
+	"encoding/base64"
 	"errors"
 	"fmt"
 	"net/http"
+	"strings"
 
 	"api-demo/app/internal/service"
 	customhttp "api-demo/pkg/http"
@@ -31,9 +33,40 @@ func NewAuthWrapper(authService AuthenticationService) *AuthWrapper {
 func (wrapper *AuthWrapper) WithAuth(f func(w http.ResponseWriter, r *http.Request, user *service.User)) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 
-		query := r.URL.Query()
-		userName := query.Get("username")
-		password := query.Get("password")
+		authHeader := r.Header.Get("Authorization")
+		if authHeader == "" {
+			customhttp.WriteError(w,
+				errors.New("no authorization provided"),
+				http.StatusUnauthorized)
+			return
+		}
+
+		splitAuthHeader := strings.Split(authHeader, " ")
+		if len(splitAuthHeader) != 2 || splitAuthHeader[0] != "Basic" {
+			customhttp.WriteError(w,
+				errors.New("invalid authorization header provided"),
+				http.StatusUnauthorized)
+			return
+		}
+
+		digest, err := base64.StdEncoding.DecodeString(splitAuthHeader[1])
+		if err != nil {
+			customhttp.WriteError(w,
+				errors.New("failed to decode base64 basic auth content"),
+				http.StatusUnauthorized)
+			return
+		}
+
+		authContent := strings.Split(string(digest), ":")
+		if len(authContent) != 2 {
+			customhttp.WriteError(w,
+				errors.New("invalid format for username:password"),
+				http.StatusUnauthorized)
+			return
+		}
+
+		userName := authContent[0]
+		password := authContent[1]
 
 		if userName == "" || password == "" {
 			customhttp.WriteError(w,
