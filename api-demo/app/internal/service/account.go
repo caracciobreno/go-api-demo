@@ -48,6 +48,10 @@ func (service *Account) CreateTransaction(ctx context.Context, sourceUserID uuid
 	var transaction *Transaction
 	err := service.repository.WithTx(ctx, func(txRepo AccountRepository) error {
 
+		if sourceUserID == targetUserID {
+			return errors.New("the target user should be different than the source user")
+		}
+
 		sourceUser, err := service.repository.FindAndLockUserByID(ctx, sourceUserID)
 		if err != nil {
 			return err
@@ -58,8 +62,8 @@ func (service *Account) CreateTransaction(ctx context.Context, sourceUserID uuid
 			return err
 		}
 
-		if sourceUser.ID == targetUser.ID {
-			return errors.New("the target user should be different than the source user")
+		if amount <= 0 {
+			return errors.New("transfer amount should be greater than zero")
 		}
 
 		if sourceUser.Balance < amount {

@@ -243,6 +243,20 @@ func TestAccount_CreateTransaction(t *testing.T) {
 				require.Contains(t, err.Error(), "the target user should be different than the source user")
 			},
 		},
+		"should return an error when the amount is zero": {
+			amount: 0,
+			checkFunction: func(t *testing.T, user *service.User, user2 *service.User, f float64, f2 float64, transaction *service.Transaction, err error) {
+				require.Error(t, err)
+				require.Contains(t, err.Error(), "transfer amount should be greater than zero")
+			},
+		},
+		"should return an error when the amount is negative": {
+			amount: -1234,
+			checkFunction: func(t *testing.T, user *service.User, user2 *service.User, f float64, f2 float64, transaction *service.Transaction, err error) {
+				require.Error(t, err)
+				require.Contains(t, err.Error(), "transfer amount should be greater than zero")
+			},
+		},
 	}
 
 	for title, test := range tests {
@@ -278,8 +292,8 @@ func TestAccount_CreateTransaction(t *testing.T) {
 			targetUserBalance := targetUser.Balance
 
 			users := map[uuid.UUID]*service.User{
-				sourceUserID: sourceUser,
-				targetUserID: targetUser,
+				sourceUser.ID: sourceUser,
+				targetUser.ID: targetUser,
 			}
 
 			repo.FindAndLockUserByIDFunc = func(ctx context.Context, userID uuid.UUID) (*service.User, error) {
@@ -292,7 +306,7 @@ func TestAccount_CreateTransaction(t *testing.T) {
 
 			accountService := service.NewAccount(repo)
 
-			transaction, err := accountService.CreateTransaction(ctx, sourceUserID, targetUserID, test.amount)
+			transaction, err := accountService.CreateTransaction(ctx, sourceUser.ID, targetUser.ID, test.amount)
 			test.checkFunction(t, sourceUser, targetUser, sourceUserBalance, targetUserBalance, transaction, err)
 		})
 	}
